@@ -1,23 +1,19 @@
 use std::io;
 
 pub fn get_valid_word(desired_len : usize) -> String {
-    let mut s = String::new();
 
     loop {
+        let mut s = String::new();
+
         match io::stdin().read_line(&mut s) {
             Err(_) => println!("Error reading word, please try again."),
             Ok(_) => (),
         }
 
-        s = s.trim().to_string();
-
-        if s.len() == desired_len {
-            break;
+        if s.trim().len() == desired_len {
+            return s;
         }
 
         println!("Word length invalid. please try again.");
-
     };
-
-    s
 }
