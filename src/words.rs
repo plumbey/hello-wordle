@@ -6,11 +6,27 @@ enum LetterColor {
     Green,
 }
 
+
+pub fn grade_word(guess : &mut String, secret : &str) -> bool {
+
+    for (i, c) in guess.as_str().chars().enumerate() {
+        print!("{}",color_escape_sequence(letter_color(i, c, secret)));
+        print!("{c}");
+    }
+
+    // reset colors
+    print!("{}",color_escape_sequence(LetterColor::Black));
+    println!();
+
+    guess == secret
+}
+
 pub fn get_valid_word(desired_len : usize) -> String {
     loop {
         let mut s = String::new();
 
-        if io::stdin().read_line(&mut s).is_err() { println!("Error reading word, please try again.") }
+        if io::stdin().read_line(&mut s).is_err() 
+        { println!("Error reading word, please try again.") }
 
         if s.trim().len() == desired_len {
             return s.trim().to_string();
@@ -34,18 +50,4 @@ fn color_escape_sequence(color : LetterColor) -> &'static str {
         LetterColor::Yellow => "\x1b[43m",
         LetterColor::Green => "\x1b[42m",
     }
-}
-
-pub fn grade_word(guess : &mut String, secret : &str) -> bool {
-
-    for (i, c) in guess.as_str().chars().enumerate() {
-        print!("{}",color_escape_sequence(letter_color(i, c, secret)));
-        print!("{c}");
-    }
-
-    // reset colors
-    print!("{}",color_escape_sequence(LetterColor::Black));
-    println!();
-
-    guess == secret
 }
