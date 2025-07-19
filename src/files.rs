@@ -31,11 +31,5 @@ fn file_line_count(path : &str) -> Result<usize, Error> {
 
     let reader = BufReader::new(file);
 
-    let mut line_count = 0;
-
-    for _ in reader.lines() {
-        line_count += 1;
-    }
-
-    Ok(line_count)
+    Ok(reader.lines().count())
 }
