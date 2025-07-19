@@ -30,26 +30,21 @@ fn letter_color(i : usize, c : char, secret : &String) -> LetterColor {
 
 fn color_escape_sequence(color : LetterColor) -> &'static str {
     match color {
-        LetterColor::Black => "\\e[0m",
-        LetterColor::Yellow => "\\e[43m",
-        LetterColor::Green => "\\e[42m",
+        LetterColor::Black => "\x1b[0m",
+        LetterColor::Yellow => "\x1b[43m",
+        LetterColor::Green => "\x1b[42m",
     }
 }
 
-fn grade_word(guess : &mut String, secret : &String) -> bool {
+pub fn grade_word(guess : &mut String, secret : &String) -> bool {
 
-    for (i, c) in secret.as_str().chars().enumerate() {
-        guess.insert_str(
-            i, 
-            color_escape_sequence(letter_color(i, c, secret))
-            );
+    for (i, c) in guess.as_str().chars().enumerate() {
+        print!("{}",color_escape_sequence(letter_color(i, c, secret)));
+        print!("{}", c);
     }
 
     // reset colors
-    guess.insert_str(
-        guess.len() - 1, 
-        color_escape_sequence(LetterColor::Black)
-        );
+    print!("{}",color_escape_sequence(LetterColor::Black));
 
     guess == secret
 }
