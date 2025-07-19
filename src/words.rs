@@ -13,14 +13,14 @@ pub fn get_valid_word(desired_len : usize) -> String {
         if io::stdin().read_line(&mut s).is_err() { println!("Error reading word, please try again.") }
 
         if s.trim().len() == desired_len {
-            return s;
+            return s.trim().to_string();
         }
 
         println!("Word length invalid. please try again.");
     };
 }
 
-fn letter_color(i : usize, c : char, secret : &String) -> LetterColor {
+fn letter_color(i : usize, c : char, secret : &str) -> LetterColor {
     match secret.find(c) {
         Some(ind) => 
             if ind == i {LetterColor::Green} else {LetterColor::Yellow},
@@ -36,15 +36,16 @@ fn color_escape_sequence(color : LetterColor) -> &'static str {
     }
 }
 
-pub fn grade_word(guess : &mut String, secret : &String) -> bool {
+pub fn grade_word(guess : &mut String, secret : &str) -> bool {
 
     for (i, c) in guess.as_str().chars().enumerate() {
         print!("{}",color_escape_sequence(letter_color(i, c, secret)));
-        print!("{}", c);
+        print!("{c}");
     }
 
     // reset colors
     print!("{}",color_escape_sequence(LetterColor::Black));
+    println!();
 
     guess == secret
 }

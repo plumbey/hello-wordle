@@ -18,7 +18,7 @@ fn main() {
         println!("Guess {}:", i + 1);
 
         let mut user_word = words::get_valid_word(WORD_LENGTH);
-        println!("");
+        println!();
 
         if words::grade_word(&mut user_word, &secret_word) {
             println!("You won! The word was {secret_word}");
