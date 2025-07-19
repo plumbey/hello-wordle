@@ -11,19 +11,14 @@ pub fn get_random_wordle_word(path : &str) -> Result<String, Error> {
 
     let rand_line_num = random_range(0..line_count);
 
-    let mut line_count = 0;
-
-    for line in reader.lines() {
-        if line_count == rand_line_num {
-            match line {
-                Ok(line) => return Ok(line),
-                Err(e) => return Err(e),
-            }
-        }
-        line_count += 1;
+    match reader.lines().nth(rand_line_num) {
+        Some(word) => return word,
+        None => return Err(
+            Error::new(
+                ErrorKind::Other,
+                "Error, could not find word in file {path}!"
+                )),
     }
-
-    Err(Error::new(ErrorKind::Other, "Could not find word in file {path}!"))
 }
 
 fn file_line_count(path : &str) -> Result<usize, Error> {
