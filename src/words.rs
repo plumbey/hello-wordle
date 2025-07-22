@@ -7,9 +7,9 @@ enum LetterColor {
 }
 
 
-pub fn grade_word(guess : &mut String, secret : &str) -> bool {
+pub fn grade_word(guess : &str, secret : &str) -> bool {
 
-    for (i, c) in guess.as_str().chars().enumerate() {
+    for (i, c) in guess.chars().enumerate() {
         print!("{}",color_escape_sequence(letter_color(i, c, secret)));
         print!("{c}");
     }
