@@ -17,10 +17,10 @@ fn main() {
     for i in 0..MAX_GUESSES {
         println!("Guess {}:", i + 1);
 
-        let mut user_word = words::get_valid_word(WORD_LENGTH);
+        let user_word = words::get_valid_word(WORD_LENGTH);
         println!();
 
-        if words::grade_word(&mut user_word, &secret_word) {
+        if words::grade_word(&user_word, &secret_word) {
             println!("You won! The word was {secret_word}");
             return;
         }
