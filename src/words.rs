@@ -1,53 +1,124 @@
+use rand::random_range;
 use std::io;
+use std::io::Error;
 
 enum LetterColor {
-    Black,
+    Default,
     Yellow,
     Green,
+    Reset,
+    FGBlack,
 }
 
+pub struct WordleGame {
+    max_guesses: u8,
+    other_words: &'static str,
+    common_words: &'static str,
+}
 
-pub fn grade_word(guess : &str, secret : &str) -> bool {
-
-    for (i, c) in guess.chars().enumerate() {
-        print!("{}",color_escape_sequence(letter_color(i, c, secret)));
-        print!("{c}");
+impl WordleGame {
+    pub fn new(other_words: &'static str, common_words: &'static str) -> WordleGame {
+        WordleGame {
+            max_guesses: 6,
+            other_words: other_words,
+            common_words: common_words,
+        }
     }
 
-    // reset colors
-    print!("{}",color_escape_sequence(LetterColor::Black));
-    println!();
+    pub fn play(&mut self) -> bool {
+        println!("Welcome to Wordle");
+        let secret_word = match self.get_random_wordle_word() {
+            Ok(word) => word,
+            Err(_) => return false,
+        };
 
-    guess == secret
-}
+        for i in 0..self.max_guesses {
+            println!("Guess {}:", i + 1);
 
-pub fn get_valid_word(desired_len : usize) -> String {
-    loop {
-        let mut s = String::new();
+            let user_word = self.get_valid_word();
+            println!();
 
-        if io::stdin().read_line(&mut s).is_err() 
-        { println!("Error reading word, please try again.") }
-
-        if s.trim().len() == desired_len {
-            return s.trim().to_string();
+            if self.grade_word(&user_word, &secret_word) {
+                println!("You won! The word was {secret_word}");
+                return true;
+            }
         }
 
-        println!("Word length invalid. please try again.");
-    };
-}
-
-fn letter_color(i : usize, c : char, secret : &str) -> LetterColor {
-    match secret.find(c) {
-        Some(ind) => 
-            if ind == i {LetterColor::Green} else {LetterColor::Yellow},
-        None => LetterColor::Black,
+        println!("You lost :( The word was {secret_word}");
+        return false;
     }
-}
 
-fn color_escape_sequence(color : LetterColor) -> &'static str {
-    match color {
-        LetterColor::Black => "\x1b[0m",
-        LetterColor::Yellow => "\x1b[43m",
-        LetterColor::Green => "\x1b[42m",
+    fn get_random_wordle_word(&mut self) -> Result<String, Error> {
+        let line_count = self.common_words.lines().count();
+
+        let rand_line_num = random_range(0..line_count);
+
+        match self.common_words.lines().nth(rand_line_num) {
+            Some(word) => Ok(word.to_string()),
+            None => Err(Error::other("Error, could not find word in file {path}!")),
+        }
+    }
+
+    fn grade_word(&self, guess: &str, secret: &str) -> bool {
+        // Make the text dark
+        print!(
+            "{}",
+            WordleGame::color_escape_sequence(LetterColor::FGBlack)
+        );
+
+        for (i, c) in guess.chars().enumerate() {
+            print!(
+                "{}",
+                WordleGame::color_escape_sequence(WordleGame::letter_color(i, c, secret))
+            );
+            print!("{c}");
+        }
+
+        // reset colors
+        print!("{}", WordleGame::color_escape_sequence(LetterColor::Reset));
+        println!();
+
+        guess == secret
+    }
+
+    fn get_valid_word(&self) -> String {
+        loop {
+            let mut s = String::new();
+
+            if io::stdin().read_line(&mut s).is_err() {
+                println!("Error reading word, please try again.")
+            }
+
+            if &s != "\n"
+                && (self.common_words.find(&s) != None || self.other_words.find(&s) != None)
+            {
+                return s.trim().to_string();
+            }
+
+            println!("Invalid word. Please try again");
+        }
+    }
+
+    fn letter_color(i: usize, c: char, secret: &str) -> LetterColor {
+        match secret.find(c) {
+            Some(ind) => {
+                if ind == i {
+                    LetterColor::Green
+                } else {
+                    LetterColor::Yellow
+                }
+            }
+            None => LetterColor::Default,
+        }
+    }
+
+    fn color_escape_sequence(color: LetterColor) -> &'static str {
+        match color {
+            LetterColor::Default => "\x1b[49m",
+            LetterColor::Yellow => "\x1b[43m",
+            LetterColor::Green => "\x1b[42m",
+            LetterColor::FGBlack => "\x1b[30m",
+            LetterColor::Reset => "\x1b[0m",
+        }
     }
 }
