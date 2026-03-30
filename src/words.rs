@@ -89,7 +89,7 @@ impl WordleGame {
                 println!("Error reading word, please try again.")
             }
 
-            if s.len() == 5
+            if s.len() == 6
                 && (self.common_words.find(&s) != None || self.other_words.find(&s) != None)
             {
                 return s.trim().to_string();
