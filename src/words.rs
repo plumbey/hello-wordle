@@ -12,6 +12,7 @@ enum LetterColor {
 
 pub struct WordleGame {
     max_guesses: u8,
+    unguessed_letters: String,
     other_words: &'static str,
     common_words: &'static str,
 }
@@ -20,6 +21,7 @@ impl WordleGame {
     pub fn new(other_words: &'static str, common_words: &'static str) -> WordleGame {
         WordleGame {
             max_guesses: 6,
+            unguessed_letters: String::from("a b c d e f g h i j k l m n o p q r s t u v w x y z"),
             other_words: other_words,
             common_words: common_words,
         }
@@ -34,6 +36,8 @@ impl WordleGame {
 
         for i in 0..self.max_guesses {
             println!("Guess {}:", i + 1);
+            println!("Unguessed Letters:");
+            println!("{}\n", self.unguessed_letters);
 
             let user_word = self.get_valid_word();
             println!();
@@ -59,7 +63,7 @@ impl WordleGame {
         }
     }
 
-    fn grade_word(&self, guess: &str, secret: &str) -> bool {
+    fn grade_word(&mut self, guess: &str, secret: &str) -> bool {
         // Make the text dark
         print!(
             "{}",
@@ -67,6 +71,11 @@ impl WordleGame {
         );
 
         for (i, c) in guess.chars().enumerate() {
+            if let Some(idx) = self.unguessed_letters.find(c) {
+                self.unguessed_letters.remove(idx);
+                self.unguessed_letters.remove(idx); // remove whitespace as well
+            }
+
             print!(
                 "{}",
                 WordleGame::color_escape_sequence(WordleGame::letter_color(i, c, secret))
@@ -89,7 +98,7 @@ impl WordleGame {
                 println!("Error reading word, please try again.")
             }
 
-            if s.len() == 6
+            if s.len() == 6 // length + new line
                 && (self.common_words.find(&s) != None || self.other_words.find(&s) != None)
             {
                 return s.trim().to_string();
