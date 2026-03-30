@@ -100,16 +100,13 @@ impl WordleGame {
     }
 
     fn letter_color(i: usize, c: char, secret: &str) -> LetterColor {
-        match secret.find(c) {
-            Some(ind) => {
-                if ind == i {
-                    LetterColor::Green
-                } else {
-                    LetterColor::Yellow
-                }
-            }
-            None => LetterColor::Default,
-        }
+        if secret.as_bytes()[i] as char == c {
+            return LetterColor::Green;
+        } else if secret.find(c) != None {
+            return LetterColor::Yellow;
+        };
+
+        LetterColor::Default
     }
 
     fn color_escape_sequence(color: LetterColor) -> &'static str {
